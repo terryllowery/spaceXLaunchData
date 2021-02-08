@@ -10,7 +10,7 @@ interface Launch {
 const launches = new Map<number, Launch>();
 
 
-async function downloadLaunchData() {
+export async function downloadLaunchData() {
   log.info("cDownloading launch data...")
   const response = await fetch("https://api.spacexdata.com/v3/launches", {
     method: "GET",
@@ -39,6 +39,10 @@ async function downloadLaunchData() {
   }
 }
 
-await downloadLaunchData();
+if(import.meta.main) {
+  await downloadLaunchData();
+  log.info(`Downloaded data for ${launches.size} SpaceX launches.`)
+  log.info(JSON.stringify(import.meta))
+  log.info("Finished")
+}
 
-log.info("Finished")
