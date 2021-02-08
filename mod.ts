@@ -1,14 +1,16 @@
-import {log} from './deps.ts';
+import {log, _} from './deps.ts';
 
 interface Launch {
   flightNumber: number;
   mission: string;
+  rocket: string;
+  customers: Array<string>;
 }
 
 const launches = new Map<number, Launch>();
 
 
-async function downloadLaunchData() {
+export async function downloadLaunchData() {
   log.info("cDownloading launch data...")
   const response = await fetch("https://api.spacexdata.com/v3/launches", {
     method: "GET",
@@ -20,9 +22,16 @@ async function downloadLaunchData() {
   const launchData = await response.json();
  
   for (const launch of launchData) {
+    const payloads = launch["rocket"]["second_stage"]["payloads"];
+    const customers = _.flatMap(payloads, (payload : any) => {
+      return payload["customers"]
+    })
+
     const flightData = {
       flightNumber: launch["flight_number"],
       mission: launch["mission_name"],
+      rocket: launch["rocket"]["rocket_name"],
+      customers: customers,
     }
     launches.set(flightData.flightNumber, flightData) 
     log.info(JSON.stringify(flightData))
@@ -30,6 +39,10 @@ async function downloadLaunchData() {
   }
 }
 
-await downloadLaunchData();
+if(import.meta.main) {
+  await downloadLaunchData();
+  log.info(`Downloaded data for ${launches.size} SpaceX launches.`)
+  log.info(JSON.stringify(import.meta))
+  log.info("Finished")
+}
 
-log.info("Finished")
