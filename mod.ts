@@ -1,4 +1,3 @@
-import { lastIndexOf } from "https://deno.land/std@0.86.0/bytes/mod.ts";
 import {log} from './deps.ts';
 
 interface Launch {
